@@ -83,26 +83,79 @@ def encode_target(df):
         df['credit_score'] = df['credit_score'].map(mapping)
     return df
 
-def encode_categorical(df):
-    """Encode categorical features using LabelEncoder."""
+import joblib
+
+def encode_categorical(df, save_path='ml/models/'):
+    """Encode categorical features and save LabelEncoders."""
     print("Encoding categorical features...")
     cat_cols = ['occupation', 'type_of_loan', 'credit_mix', 'payment_of_min_amount', 'payment_behaviour']
-    le = LabelEncoder()
+    os.makedirs(save_path, exist_ok=True)
+    
     for col in cat_cols:
         if col in df.columns:
-            df[col] = df[col].astype(str) # Ensure string
+            df[col] = df[col].astype(str)
+            le = LabelEncoder()
             df[col] = le.fit_transform(df[col])
+            # Save the fitted encoder
+            joblib.dump(le, os.path.join(save_path, f'le_{col}.pkl'))
+            print(f"Saved Encoder for {col}")
     return df
 
-def scale_features(df):
-    """Scale numeric features using StandardScaler."""
+def scale_features(df, save_path='ml/models/'):
+    """Scale numeric features and save StandardScaler."""
     print("Scaling features...")
-    # Exclude target from scaling
     target = 'credit_score'
     features = [col for col in df.columns if col != target]
     
     scaler = StandardScaler()
     df[features] = scaler.fit_transform(df[features])
+    
+    os.makedirs(save_path, exist_ok=True)
+    joblib.dump(scaler, os.path.join(save_path, 'scaler.pkl'))
+    print("Saved StandardScaler.")
+    return df
+
+def preprocess_input(data_dict, model_path='ml/models/'):
+    """Preprocess a single record for inference."""
+    df = pd.DataFrame([data_dict])
+    
+    # 1. Cleaning (subset of clean_dataset)
+    df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+    
+    # 2. Categorical Encoding (Load saved encoders)
+    cat_cols = ['occupation', 'type_of_loan', 'credit_mix', 'payment_of_min_amount', 'payment_behaviour']
+    for col in cat_cols:
+        if col in df.columns:
+            le_path = os.path.join(model_path, f'le_{col}.pkl')
+            if os.path.exists(le_path):
+                le = joblib.load(le_path)
+                # Handle unseen labels by mapping to a default if necessary, 
+                # but for now assume input matches training
+                df[col] = df[col].astype(str)
+                # le.transform might fail on new labels, so we handle it
+                try:
+                    df[col] = le.transform(df[col])
+                except:
+                    # Fallback to a default class (e.g., first class)
+                    df[col] = 0
+    
+    # 3. Scaling (Load saved scaler)
+    scaler_path = os.path.join(model_path, 'scaler.pkl')
+    if os.path.exists(scaler_path):
+        scaler = joblib.load(scaler_path)
+        # We need to ensure the columns match the scaler's expected order
+        # The scaler was fitted on 15 features in a specific order
+        features_order = [
+            'age', 'annual_income', 'monthly_inhand_salary', 'num_bank_accounts',
+            'num_credit_card', 'interest_rate', 'num_of_delayed_payment',
+            'outstanding_debt', 'credit_utilization_ratio', 'total_emi_per_month',
+            'monthly_balance', 'occupation', 'credit_mix', 'payment_of_min_amount',
+            'payment_behaviour'
+        ]
+        # Reorder and handle missing
+        df = df.reindex(columns=features_order).fillna(0)
+        df[features_order] = scaler.transform(df[features_order])
+    
     return df
 
 def run_preprocessing_pipeline():

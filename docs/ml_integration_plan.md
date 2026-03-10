@@ -69,28 +69,33 @@ Analysis of the Random Forest model revealed the top predictors of creditworthin
 
 See `ml/models/feature_importance.png` for the full breakdown.
 
-## 5. Training & Prediction Pipelines
-The **Next.js/Express** backend will communicate with a **Python Inference Service**.
-- **Endpoint**: `POST /predict-credit-score`
-- **Request Format**:
-  ```json
-  {
-    "age": 28,
-    "income": 55000,
-    "outstanding_debt": 12000,
-    "delayed_payments": 2
-  }
-  ```
-- **Response Format**:
-  ```json
-  {
-    "credit_score_category": "Good",
-    "score_probability": 0.84,
-    "confidence": 0.91
-  }
-  ```
+## 5. ML Inference Service
+The **Next.js/Express** backend communicates with a **FastAPI** inference service for real-time predictions.
 
-## 4. Database Schema: Prediction Logging
+- **Endpoint**: `POST /predict-credit-score`
+- **Request Schema (Pydantic)**:
+    - `age`, `annual_income`, `monthly_inhand_salary` (float)
+    - `num_bank_accounts`, `num_credit_card` (int)
+    - `interest_rate`, `num_of_delayed_payment` (float/int)
+    - `outstanding_debt`, `credit_utilization_ratio` (float)
+    - `total_emi_per_month`, `monthly_balance` (float)
+    - Optional: `occupation`, `credit_mix`, `payment_of_min_amount`, `payment_behaviour` (string)
+- **Response Format**:
+    ```json
+    {
+      "credit_score_category": "Good",
+      "confidence": 0.87,
+      "probabilities": {
+        "Poor": 0.05,
+        "Standard": 0.08,
+        "Good": 0.87
+      }
+    }
+    ```
+- **Backend Integration**:
+    The Express backend will call this service when a user completes the financial questionnaire.
+
+## 6. Database Schema: Prediction Logging
 To monitor model performance and drift, every prediction will be logged.
 
 ### Table: `credit_predictions`
@@ -104,10 +109,10 @@ To monitor model performance and drift, every prediction will be logged.
 | `model_version` | VARCHAR | ID of the model used |
 | `created_at` | TIMESTAMP | Logging time |
 
-## 5. Integration Strategy (Hybrid Scoring)
+## 7. Integration Strategy (Hybrid Scoring)
 We will implement a **Hybrid Scoring System** to ensure stability:
 - **Calculation**: `Final Score = (Rule_Score * 0.4) + (ML_Score * 0.6)`
 - **Fallback**: If the ML Inference Service is unreachable or returns a low-confidence score (< 0.5), the system will default to the **Rule-based Score** alone with a warning flag.
 
-## 6. Future: Explainability Module
+## 8. Future: Explainability Module
 Integration of **SHAP (SHapley Additive exPlanations)** to provide users with specific reasons for their score (e.g., "Score increased due to stable income").

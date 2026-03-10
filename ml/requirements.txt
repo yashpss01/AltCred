@@ -7,3 +7,7 @@ matplotlib
 seaborn
 shap
 jupyter
+kagglehub[pandas-datasets]
+fastapi
+uvicorn
+pydantic
