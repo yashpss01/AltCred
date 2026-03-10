@@ -109,10 +109,22 @@ To monitor model performance and drift, every prediction will be logged.
 | `model_version` | VARCHAR | ID of the model used |
 | `created_at` | TIMESTAMP | Logging time |
 
-## 7. Integration Strategy (Hybrid Scoring)
-We will implement a **Hybrid Scoring System** to ensure stability:
-- **Calculation**: `Final Score = (Rule_Score * 0.4) + (ML_Score * 0.6)`
-- **Fallback**: If the ML Inference Service is unreachable or returns a low-confidence score (< 0.5), the system will default to the **Rule-based Score** alone with a warning flag.
+## 7. Backend Integration (Hybrid Scoring)
+The Express backend orchestrates the scoring process:
+
+1.  **ML Client**: `backend/src/services/mlService.js` handles communication with FastAPI using `axios`.
+2.  **Hybrid Logic**:
+    - **Weights**: `Rule Score (40%)` + `ML Base Score (60%)`.
+    - **ML Base Mapping**: Poor (400), Standard (650), Good (800).
+3.  **Graceful Fallback**: If the ML service is down, the system defaults to the rule-based score (100% weight) and logs a warning.
+4.  **Logging**: Every ML-assisted prediction is stored in the `credit_predictions` table for drift analysis.
+
+### Response Comparison
+| Metric | Rule-Based (Phase 1) | Hybrid (Phase 5) |
+|--------|----------------------|------------------|
+| Accuracy | Deterministic | Probabilistic (Ensemble) |
+| Feedback | Fixed Weights | Dynamic (ML-discovered) |
+| Resiliency | High | High (with Fallback) |
 
 ## 8. Future: Explainability Module
-Integration of **SHAP (SHapley Additive exPlanations)** to provide users with specific reasons for their score (e.g., "Score increased due to stable income").
+Integration of **SHAP (SHapley Additive exPlanations)** to provide users with specific reasons for their score.

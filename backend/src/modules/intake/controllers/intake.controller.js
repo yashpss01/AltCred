@@ -1,28 +1,51 @@
-const {intakeData} = require("../services/intake.service")
-const {supabase} =require("../../../config/supabase")
+const { intakeData } = require("../services/intake.service")
+const { supabase } = require("../../../config/supabase")
+const { calculateUserCreditScore } = require("../../credit-score/services/creditScore.service")
 
-async function saveAnswers(req,res,next){
+async function saveAnswers(req, res, next) {
   try {
-    const {data: user,error:userError}= await supabase
+    const userId = req.user.id;
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('id')
-      .eq('id', req.user.id)
+      .eq('id', userId)
       .single();
 
-    if (userError || !user){
-      return res.status(404).json({ 
-        success: false, 
+    if (userError || !user) {
+      return res.status(404).json({
+        success: false,
         message: 'User not found',
-        userId: req.user.id
+        userId: userId
       })
     }
 
-    const stored = await intakeData(req.user.id, req.body.answers);
-    res.status(201).json({success: true,stored})
+    // 1. Store the answers
+    const stored = await intakeData(userId, req.body.answers);
+
+    // 2. Trigger Hybrid Credit Scoring
+    console.log('Intake complete, triggering hybrid scoring for:', userId);
+    const scoreResult = await calculateUserCreditScore(userId);
+
+    // 3. Return combined response
+    res.status(201).json({
+      success: true,
+      message: 'Assessment submitted and score calculated',
+      data: {
+        intake: stored,
+        score: scoreResult.score,
+        category: scoreResult.category,
+        confidence: scoreResult.ml_meta?.confidence || scoreResult.confidence,
+        rule_score: scoreResult.rule_score,
+        ml_prediction: scoreResult.ml_meta?.prediction || "N/A",
+        final_score: scoreResult.score,
+        risk_category: scoreResult.category
+      }
+    });
+
   } catch (err) {
-    console.error('Error in saveAnswers:',err)
+    console.error('Error in saveAnswers/calculate:', err)
     next(err)
   }
 }
 
-module.exports ={saveAnswers};
+module.exports = { saveAnswers };

@@ -8,6 +8,8 @@ const allowedEducation = ["No formal education", "High school", "UG", "PG", "Pro
 const allowedBudgetTrack = ["Yes, strictly", "Yes, loosely", "No"]
 
 const allowedDependents = ["None", "1", "2–3", "more"]
+const allowedOccupations = ["Scientist", "Teacher", "Engineer", "Doctor", "Architect", "Developer", "Media_Manager", "Manager", "Accountant", "Musician", "Mechanic", "Writer", "Lawyer", "Journalist", "Other"]
+const allowedCreditMix = ["Good", "Standard", "Bad"]
 
 function intakeValidator(req, res, next) {
   const { answers } = req.body;
@@ -74,9 +76,48 @@ function intakeValidator(req, res, next) {
     return res.status(400).json({ message: "Invalid financial discipline option" })
   }
 
+  // --- ML Specific Fields ---
+  const {
+    age,
+    num_bank_accounts,
+    num_credit_card,
+    interest_rate,
+    num_of_delayed_payment,
+    outstanding_debt,
+    credit_utilization_ratio,
+    total_emi_per_month,
+    monthly_balance,
+    occupation,
+    credit_mix
+  } = answers;
+
+  // Validation for numeric ML fields (allowing optional/defaults if not provided)
+  const mlNumericFields = {
+    age: Number(age) || 25,
+    num_bank_accounts: Number(num_bank_accounts) || 1,
+    num_credit_card: Number(num_credit_card) || 1,
+    interest_rate: Number(interest_rate) || 10,
+    num_of_delayed_payment: Number(num_of_delayed_payment) || 0,
+    outstanding_debt: Number(outstanding_debt) || 0,
+    credit_utilization_ratio: Number(credit_utilization_ratio) || 30,
+    total_emi_per_month: Number(total_emi_per_month) || 0,
+    monthly_balance: Number(monthly_balance) || 500
+  };
+
+  if (occupation && !allowedOccupations.includes(occupation)) {
+     return res.status(400).json({ message: "Invalid occupation option" });
+  }
+
+  if (credit_mix && !allowedCreditMix.includes(credit_mix)) {
+     return res.status(400).json({ message: "Invalid credit mix option" });
+  }
+
   // Normalize answers for controller/service
   req.body.answers = {
     ...answers,
+    ...mlNumericFields,
+    occupation: occupation || "Other",
+    credit_mix: credit_mix || "Standard",
     loanExperience,
     billDiscipline
   };

@@ -62,8 +62,62 @@ async function saveCreditScore(userId, scoreData) {
     return data;
 }
 
+const { predictCreditScore } = require('../../../services/mlService');
+
 /**
- * Calculate credit score for a user
+ * Map ML prediction category to a numeric base score
+ * @param {string} category - "Poor", "Standard", "Good"
+ * @returns {number} Base score
+ */
+function mapMLCategoryToScore(category) {
+    const mapping = {
+        'Poor': 400,
+        'Standard': 650,
+        'Good': 800
+    };
+    return mapping[category] || 600;
+}
+
+/**
+ * Calculate hybrid score combining rule-based and ML results
+ * @param {number} ruleScore - Score from rule engine
+ * @param {string} mlCategory - Category from ML model
+ * @returns {number} Hybrid score
+ */
+function calculateHybridScore(ruleScore, mlCategory) {
+    const mlBaseScore = mapMLCategoryToScore(mlCategory);
+
+    // Weights: Rule 40%, ML 60%
+    const hybridScore = Math.round((ruleScore * 0.4) + (mlBaseScore * 0.6));
+
+    // Ensure 300-850 range
+    return Math.max(300, Math.min(850, hybridScore));
+}
+
+/**
+ * Log prediction results to the database
+ */
+async function logPrediction(userId, data) {
+    const { error } = await supabase
+        .from('credit_predictions')
+        .insert({
+            user_id: userId,
+            rule_score: data.ruleScore,
+            ml_prediction: data.mlPrediction,
+            ml_confidence: data.mlConfidence,
+            final_score: data.finalScore,
+            risk_category: data.riskCategory,
+            created_at: new Date().toISOString()
+        });
+
+    if (error) {
+        console.error('Failed to log prediction:', error.message);
+        // Don't throw, logging failure shouldn't break the user flow
+    }
+}
+
+/**
+ * Calculate credit score for a user (Orchestrator)
  * @param {string} userId - User ID
  * @returns {Object} Credit score result
  */
@@ -75,15 +129,58 @@ async function calculateUserCreditScore(userId) {
         // 2. Engineer features from answers
         const features = engineerFeatures(answers);
 
-        // 3. Calculate credit score
-        const scoreResult = calculateCreditScore(features);
+        // 3. Rule-based scoring
+        const ruleResult = calculateCreditScore(features);
 
-        // 4. Save to database
-        const savedScore = await saveCreditScore(userId, scoreResult);
+        // 4. ML Prediction (FastAPI Call)
+        console.log('Requesting ML prediction for user:', userId);
+        const mlResult = await predictCreditScore(answers);
 
-        // 5. Return complete result
+        let finalScore = ruleResult.score;
+        let riskCategory = ruleResult.category;
+        let mlMeta = { status: 'success' };
+
+        if (mlResult.success) {
+            // 5. Hybrid Scoring logic
+            finalScore = calculateHybridScore(ruleResult.score, mlResult.prediction);
+            // Re-evaluate category based on hybrid score
+            const { getScoreCategory } = require('./mlModel.service');
+            riskCategory = getScoreCategory(finalScore);
+            mlMeta = {
+                prediction: mlResult.prediction,
+                confidence: mlResult.confidence,
+                probabilities: mlResult.probabilities
+            };
+        } else {
+            console.warn('ML Service failed, falling back to rule-based score');
+            mlMeta = { status: 'failed', error: mlResult.error };
+        }
+
+        const finalResult = {
+            ...ruleResult,
+            rule_score: ruleResult.score,
+            ml_meta: mlMeta,
+            score: finalScore,
+            category: riskCategory
+        };
+
+        // 6. Save main score to credit_scores table
+        const savedScore = await saveCreditScore(userId, finalResult);
+
+        // 7. Log detailed prediction (if table exists)
+        if (mlResult.success) {
+            await logPrediction(userId, {
+                ruleScore: ruleResult.score,
+                mlPrediction: mlResult.prediction,
+                mlConfidence: mlResult.confidence,
+                finalScore: finalScore,
+                riskCategory: riskCategory
+            });
+        }
+
+        // 8. Return complete result
         return {
-            ...scoreResult,
+            ...finalResult,
             id: savedScore.id,
             calculatedAt: savedScore.calculated_at,
         };
