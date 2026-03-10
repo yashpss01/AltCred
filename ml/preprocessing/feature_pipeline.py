@@ -88,7 +88,7 @@ import joblib
 def encode_categorical(df, save_path='ml/models/'):
     """Encode categorical features and save LabelEncoders."""
     print("Encoding categorical features...")
-    cat_cols = ['occupation', 'type_of_loan', 'credit_mix', 'payment_of_min_amount', 'payment_behaviour']
+    cat_cols = ['occupation', 'credit_mix', 'payment_of_min_amount', 'payment_behaviour']
     os.makedirs(save_path, exist_ok=True)
     
     for col in cat_cols:
