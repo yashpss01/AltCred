@@ -1,128 +1,338 @@
-# AltCred - AI-Driven Alternative Credit Scoring
+<p align="center">
+  <h1 align="center">AltCred</h1>
+  <p align="center">
+    <strong>AI-Powered Alternative Credit Scoring Platform</strong>
+  </p>
+  <p align="center">
+    <em>Hybrid ML + Rule-Based scoring · Explainable AI (SHAP) · Dockerized Microservices</em>
+  </p>
+</p>
 
-**AltCred** is a financial inclusion platform that uses alternative data points to generate credit scores for individuals with little to no credit history. By analyzing factors like employment stability, income patterns, and financial discipline, AltCred provides a fair and dynamic assessment of creditworthiness.
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.11-blue?logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/node-18-green?logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/docker-supported-2496ED?logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/license-MIT-brightgreen" alt="License" />
+  <img src="https://img.shields.io/badge/ML-RandomForest-orange?logo=scikit-learn&logoColor=white" alt="ML" />
+  <img src="https://img.shields.io/badge/explainability-SHAP-red" alt="SHAP" />
+</p>
 
+---
 
-## 🚀 Features
+## Overview
 
-*   **Financial Assessment Engine**: A comprehensive 10-point questionnaire capturing alternative data (income stability, savings buffer, digital behavior).
-*   **ML Scoring Model**: A weighted algorithmic engine that processes raw inputs into a normalized FICO-like score (300-850).
-*   **Real-time Dashboard**: Visualizes credit scores with color-coded risk categories and detailed factor breakdowns.
-*   **Secure Authentication**: JWT-based Login and Signup system with protected routes.
-*   **Responsive Design**: Modern, dark-themed UI built with Next.js and Framer Motion.
+**AltCred** is a production-grade fintech platform that uses machine learning to generate credit scores for individuals with little to no traditional credit history. It analyzes alternative data points — employment stability, income patterns, financial discipline — and combines a **rule-based engine** with a **Random Forest ML model** using a hybrid scoring architecture.
 
-## 🛠️ Tech Stack
+Every prediction is accompanied by **SHAP-based explanations**, telling users *why* they received their score.
 
-*   **Frontend**: Next.js (Pages Router), React, Tailwind CSS, Framer Motion
-*   **Backend**: Node.js, Express.js
-*   **Database**: Supabase (PostgreSQL)
-*   **Authentication**: JWT (JSON Web Tokens)
-*   **ML/Logic**: Custom Weighted Scoring Algorithm (Node.js)
+---
 
-## ⚙️ Installation & Setup
+## Architecture
+
+```mermaid
+graph TD
+    A[👤 User] --> B[Next.js Frontend]
+    B --> C[Express Backend]
+    C --> D{Scoring Engine}
+    D --> E[Rule-Based Engine<br/>Weight: 40%]
+    D --> F[FastAPI ML Service<br/>Weight: 60%]
+    F --> G[Random Forest Model]
+    F --> H[SHAP Explainer]
+    F --> I[Model Registry]
+    F --> J[Feature Service]
+    C --> K[(Supabase PostgreSQL)]
+    C --> L[Analytics API]
+    L --> M[Monitoring Dashboard]
+```
+
+### ML Pipeline
+
+```mermaid
+graph LR
+    A[Kaggle Dataset] --> B[Feature Pipeline]
+    B --> C[Training Script]
+    C --> D[Model Evaluation]
+    D --> E[Model Registry]
+    E --> F[FastAPI Inference]
+    F --> G[SHAP Explanations]
+```
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| 🧠 **Hybrid Scoring** | Combines rule-based (40%) and ML-based (60%) scoring for robust predictions |
+| 🔍 **Explainable AI** | SHAP integration returns top 3 feature impacts per prediction |
+| 📦 **Model Registry** | Version-controlled model management with hot-swapping support |
+| 🔄 **Feature Service** | Centralized preprocessing eliminates training-serving skew |
+| 📊 **Monitoring Dashboard** | Real-time analytics for latency, risk distribution, and model health |
+| 🐳 **Dockerized** | Full-stack containerization with health checks and volume mounts |
+| 🛡️ **Graceful Fallback** | If ML service is down, system defaults to rule-based scoring (100%) |
+| 🔐 **Secure Auth** | JWT-based authentication with bcrypt password hashing |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js, React, Tailwind CSS, Recharts, Framer Motion |
+| **Backend** | Node.js, Express.js, Axios |
+| **ML Service** | Python, FastAPI, scikit-learn, SHAP, Pydantic |
+| **Database** | Supabase (PostgreSQL) |
+| **Infrastructure** | Docker, Docker Compose |
+| **Auth** | JWT, bcrypt, Helmet, CORS |
+
+---
+
+## Getting Started
 
 ### Prerequisites
-*   Node.js (v16+)
-*   NPM
-*   A Supabase account
+
+- Node.js 18+
+- Python 3.11+
+- Docker & Docker Compose (for containerized setup)
+- A [Supabase](https://supabase.com) project
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Archisman-NC/AltCred.git
 cd AltCred
 ```
 
-### 2. Setup Environment Variables
-Create a `.env` file in the `backend` directory:
+### 2. Environment Variables
+
+Copy the example file and fill in your credentials:
+
+```bash
+cp .env.example backend/.env
+```
+
+Create `frontend/.env.local`:
+
 ```env
-PORT=4000
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-JWT_ACCESS_SECRET=your_random_secret_string
-JWT_REFRESH_SECRET=your_random_secret_string
+NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
 ```
 
-Create a `.env.local` file in the `frontend` directory:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000
-```
-**Database Schema:**
-Run the SQL script located in `backend/src/modules/credit-score/schema.sql` in your Supabase SQL Editor to create the necessary tables.
+### 3. Manual Setup
 
-### 3. Quick Start
-In the root, run the following command on CLI
 ```bash
-npm run install:all
-npm run dev:all
+# Backend
+cd backend && npm install && npm run dev
+
+# Frontend (new terminal)
+cd frontend && npm install && npm run dev
+
+# ML Service (new terminal)
+cd ml && pip install -r requirements.txt
+uvicorn ml.inference.app:app --host 0.0.0.0 --port 8000
 ```
-And you are all set.
 
+---
 
-### 4. Starting Backend 
-Navigate to the backend folder and install dependencies:
+## Running with Docker
+
+The entire platform can be started with a single command:
+
 ```bash
-cd backend
-npm install
-npm run start
+make run
 ```
 
-### 5. Starting Frontend
-Navigate to the frontend folder and install dependencies:
+Or directly:
+
 ```bash
-cd ../frontend
-npm install
-npm run dev
+docker-compose up --build
 ```
 
-Visit `http://localhost:4000` to view the app.
+| Service | Port | URL |
+|---|---|---|
+| Frontend | 3000 | `http://localhost:3000` |
+| Backend | 5000 | `http://localhost:5000` |
+| ML Service | 8000 | `http://localhost:8000` |
 
-## 🧠 How the Scoring Works
+The backend automatically waits for the ML service to be healthy before starting.
 
-The credit score is calculated based on 4 key pillars:
+---
 
-1.  **Payment History (35%)**: Analyzes past loan behavior and bill payment discipline.
-2.  **Financial Stability (25%)**: Evaluates savings buffer and expense ratios.
-3.  **Income Factors (20%)**: Considers income amount and stability.
-4.  **Responsibility (20%)**: Looks at education level and number of dependents.
+## API Endpoints
 
-The raw answers are normalized to a 0-1 scale and processed through a weighted algorithm to generate a score between 300 and 850.
+### Backend (Express)
 
-## 📂 Project Structure
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/v1/auth/signup` | Register a new user |
+| `POST` | `/api/v1/auth/login` | Authenticate user |
+| `POST` | `/api/v1/intake/submit` | Submit financial assessment |
+| `GET` | `/api/v1/analytics/predictions-summary` | Prediction statistics |
+| `GET` | `/api/v1/analytics/risk-distribution` | Risk category breakdown |
+| `GET` | `/api/v1/analytics/model-performance` | Model accuracy metrics |
+| `GET` | `/api/v1/analytics/system-health` | System health status |
+
+### ML Service (FastAPI)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Service health check |
+| `POST` | `/predict-credit-score` | Generate ML prediction |
+| `POST` | `/reload-model` | Hot-reload active model |
+
+#### Example Prediction Request
+
+```bash
+curl -X POST http://localhost:8000/predict-credit-score \
+  -H "Content-Type: application/json" \
+  -d '{
+    "age": 30,
+    "annual_income": 50000,
+    "monthly_inhand_salary": 4000,
+    "num_bank_accounts": 3,
+    "num_credit_card": 2,
+    "interest_rate": 12,
+    "num_of_delayed_payment": 3,
+    "outstanding_debt": 5000,
+    "credit_utilization_ratio": 30,
+    "total_emi_per_month": 500,
+    "monthly_balance": 1500,
+    "occupation": "Engineer",
+    "credit_mix": "Standard",
+    "payment_of_min_amount": "Yes",
+    "payment_behaviour": "Low_spent_Small_value_payments"
+  }'
+```
+
+#### Example Response
+
+```json
+{
+  "credit_score_category": "Good",
+  "confidence": 0.87,
+  "model_version": "credit_model_v1",
+  "explanation": [
+    {"feature": "outstanding_debt", "impact": -0.18},
+    {"feature": "annual_income", "impact": 0.15},
+    {"feature": "num_of_delayed_payment", "impact": -0.12}
+  ],
+  "latency_ms": 34.2
+}
+```
+
+---
+
+## Explainability (SHAP)
+
+Every prediction includes a **SHAP-based explanation** showing the top 3 features that influenced the score.
+
+```mermaid
+graph LR
+    A[User Input] --> B[Feature Service]
+    B --> C[Random Forest]
+    C --> D[Prediction]
+    C --> E[SHAP TreeExplainer]
+    E --> F[Top 3 Feature Impacts]
+    D --> G[API Response]
+    F --> G
+```
+
+This enables transparency and regulatory compliance for credit scoring decisions.
+
+---
+
+## Model Architecture
+
+- **Algorithm**: Random Forest Classifier (100 estimators)
+- **Accuracy**: ~78.3% (3-class classification)
+- **Target**: `Credit_Score` → Poor (0), Standard (1), Good (2)
+- **Features**: 15 financial attributes (income, debt, payment history, etc.)
+- **Registry**: `ml/registry/model_registry.json` for version tracking
+- **Hot-swap**: Models can be reloaded via `POST /reload-model` without restarting
+
+---
+
+## Monitoring Dashboard
+
+The `/analytics` page provides real-time visibility into:
+
+- 📈 **Prediction Volume** — Total and daily prediction counts
+- ⚡ **Latency Tracking** — Average ML inference response time
+- 🎯 **Risk Distribution** — Breakdown of Good / Standard / Poor scores
+- 🏥 **System Health** — Active model version and service status
+
+---
+
+## How Scoring Works
+
+AltCred uses a **hybrid scoring architecture**:
+
+```
+Final Score = (Rule Score × 0.4) + (ML Base Score × 0.6)
+```
+
+| ML Category | Base Score |
+|---|---|
+| Poor | 400 |
+| Standard | 650 |
+| Good | 800 |
+
+If the ML service is unavailable, the system gracefully degrades to 100% rule-based scoring.
+
+---
+
+## Project Structure
 
 ```
 AltCred/
-├── backend/
-│   ├── src/
-│   │   ├── modules/
-│   │   │   ├── auth/          # Authentication logic
-│   │   │   ├── credit-score/  # ML Model & Scoring logic
-│   │   │   └── intake/        # Assessment form handling
-│   │   └── server.js          # Entry point
-├── frontend/
-│   ├── src/
-│   │   ├── pages/             # Next.js Pages (Dashboard, Login, etc.)
-│   │   ├── components/        # Reusable UI components
-│   │   └── utils/             # API clients & helpers
-└── docs/                      # Detailed Documentation
+├── frontend/              # Next.js application
+│   ├── src/pages/         # Pages (Home, Dashboard, Analytics)
+│   └── Dockerfile         # Multi-stage production build
+├── backend/               # Express.js API server
+│   ├── src/modules/       # auth, intake, credit-score, analytics
+│   ├── src/services/      # mlService.js (ML client)
+│   └── Dockerfile
+├── ml/                    # Python ML workspace
+│   ├── inference/         # FastAPI app, Feature Service
+│   ├── training/          # Model training pipeline
+│   ├── preprocessing/     # Data cleaning & feature engineering
+│   ├── registry/          # Model registry (JSON)
+│   ├── models/            # Serialized models & encoders
+│   └── Dockerfile
+├── docs/                  # Architecture & integration docs
+├── docker-compose.yml     # Orchestration with health checks
+├── Makefile               # Dev CLI (make run, make stop)
+├── .env.example           # Environment variable template
+├── CONTRIBUTING.md        # Contributor guidelines
+└── LICENSE                # MIT License
 ```
 
-## 📚 Documentation
+---
 
-For more detailed information, please refer to the following documentation:
+## Deployment
 
-*   [**API Endpoints**](docs/api-endpoints.md): Comprehensive list of available API routes and their usage.
-*   [**Architecture**](docs/architecture.md): High-level overview of the system architecture and design decisions.
-*   [**Data Models**](docs/datamodels.md): Detailed description of the database schema and data structures.
+| Service | Recommended Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend | Railway / Render |
+| ML Service | Railway / Fly.io |
+| Database | Supabase |
 
-## 🤝 Contributing
+Ensure all environment variables from `.env.example` are configured in your deployment platform.
 
-Contributions are welcome! Please follow these steps to contribute:
+---
 
-1.  Fork the repository.
-2.  Create a new branch (`git checkout -b feature/YourFeature`).
-3.  Commit your changes (`git commit -m 'Add some feature'`).
-4.  Push to the branch (`git push origin feature/YourFeature`).
-5.  Open a Pull Request.
+## Contributing
 
-## 📄 License
-This project is licensed under the MIT License.
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<p align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/Archisman-NC">Archisman Nath Choudhury</a></sub>
+</p>
