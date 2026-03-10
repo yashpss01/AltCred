@@ -1,20 +1,12 @@
-# Use official Node.js image
-FROM node:20-alpine
+FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+COPY backend/package*.json ./
+RUN npm install --production
 
-# Install dependencies
-RUN npm ci --only=production
+COPY backend/ .
 
-# Copy source code
-COPY . .
+EXPOSE 5000
 
-# Expose port
-EXPOSE 4000
-
-# Start application
 CMD ["npm", "start"]

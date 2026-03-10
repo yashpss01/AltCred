@@ -1,16 +1,16 @@
-# Stage 1: Building the code
-FROM node:20-alpine AS builder
+# Stage 1: Building the application
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY frontend/package*.json ./
+RUN npm install
 
-COPY . .
+COPY frontend/ .
 RUN npm run build
 
-# Stage 2: Run the production server
-FROM node:20-alpine AS runner
+# Stage 2: Production server
+FROM node:18-alpine AS runner
 
 WORKDIR /app
 

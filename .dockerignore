@@ -1,0 +1,14 @@
+node_modules
+.git
+.next
+out
+build
+data/
+ml/notebooks
+ml/data
+*.log
+.env
+.env.local
+.DS_Store
+dist
+coverage

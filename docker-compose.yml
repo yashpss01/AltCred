@@ -1,21 +1,55 @@
 version: '3.8'
 
 services:
-  backend:
-    build: ./backend
+  ml-service:
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
     ports:
-      - "4000:4000"
+      - "8000:8000"
+    volumes:
+      - ./ml/models:/app/ml/models
+      - ./ml/registry:/app/ml/registry
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - altcred-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:5000"
     environment:
-      - PORT=4000
-      # Add other env vars here or use .env file
-    env_file:
-      - ./backend/.env
+      - NODE_ENV=production
+      - ML_SERVICE_URL=http://ml-service:8000
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    depends_on:
+      ml-service:
+        condition: service_healthy
+    networks:
+      - altcred-network
 
   frontend:
-    build: ./frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
-    depends_on:
-      - backend
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+    networks:
+      - altcred-network
+
+networks:
+  altcred-network:
+    driver: bridge
+
+volumes:
+  model_data:
