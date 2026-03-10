@@ -1,0 +1,12 @@
+{
+  "active_model": "credit_model_v1.pkl",
+  "models": [
+    {
+      "name": "credit_model_v1",
+      "file": "credit_model_v1.pkl",
+      "algorithm": "RandomForest",
+      "accuracy": 0.783,
+      "created_at": "2026-03-11"
+    }
+  ]
+}

@@ -11,3 +11,4 @@ kagglehub[pandas-datasets]
 fastapi
 uvicorn
 pydantic
+shap
