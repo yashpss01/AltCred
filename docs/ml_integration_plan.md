@@ -109,22 +109,25 @@ To monitor model performance and drift, every prediction will be logged.
 | `model_version` | VARCHAR | ID of the model used |
 | `created_at` | TIMESTAMP | Logging time |
 
-## 7. Backend Integration (Hybrid Scoring)
-The Express backend orchestrates the scoring process:
+## 9. Model Versioning & Registry
+AltCred uses a versioned model management system located in `ml/models/` and `ml/registry/`.
+- **Registry**: `ml/registry/model_registry.json` tracks metadata for all deployed models.
+- **Dynamic Loading**: The FastAPI service reads the registry at startup to load the `active_model`. This allows for seamless A/B testing and rollbacks.
 
-1.  **ML Client**: `backend/src/services/mlService.js` handles communication with FastAPI using `axios`.
-2.  **Hybrid Logic**:
-    - **Weights**: `Rule Score (40%)` + `ML Base Score (60%)`.
-    - **ML Base Mapping**: Poor (400), Standard (650), Good (800).
-3.  **Graceful Fallback**: If the ML service is down, the system defaults to the rule-based score (100% weight) and logs a warning.
-4.  **Logging**: Every ML-assisted prediction is stored in the `credit_predictions` table for drift analysis.
+## 10. Feature Service
+To ensure consistency between training environments and production, all preprocessing logic is centralized in `ml/inference/feature_service.py`.
+- **Responsibilities**: Label encoding, feature scaling, and feature re-ordering.
+- **Benefits**: Eliminates "training-serving skew" and simplifies the inference API code.
 
-### Response Comparison
-| Metric | Rule-Based (Phase 1) | Hybrid (Phase 5) |
-|--------|----------------------|------------------|
-| Accuracy | Deterministic | Probabilistic (Ensemble) |
-| Feedback | Fixed Weights | Dynamic (ML-discovered) |
-| Resiliency | High | High (with Fallback) |
+## 11. Explainable AI (SHAP)
+Every prediction now includes a SHAP (SHapley Additive exPlanations) analysis.
+- **Top Contributors**: The API returns the top 3 features that influenced the specific user's credit score.
+- **Local Explanations**: Helps users understand *why* they received a certain score (e.g., "High outstanding debt decreased your score").
 
-## 8. Future: Explainability Module
-Integration of **SHAP (SHapley Additive exPlanations)** to provide users with specific reasons for their score.
+## 12. Monitoring & Analytics Dashboard
+A dedicated dashboard at `/analytics` provides real-time visibility into the system performance.
+- **Metrics Tracked**:
+    - **Prediction Latency**: Average response time of the ML service.
+    - **Risk Distribution**: Breakdown of Good vs. Poor risk categories.
+    - **Model Accuracy**: Success rate and drift monitoring via `prediction_outcomes`.
+    - **System Health**: Active model version and service availability.
