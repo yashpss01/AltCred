@@ -1,21 +1,17 @@
 {
   "name": "altcred",
   "version": "1.0.0",
-  "description": "AltCred - Alternative Credit Scoring Platform",
+  "description": "AltCred - AI-Powered Alternative Credit Scoring Platform",
   "private": true,
   "scripts": {
     "install:backend": "cd backend && npm install",
     "install:frontend": "cd frontend && npm install",
     "install:all": "npm run install:backend && npm run install:frontend",
-
+    "postinstall": "cd frontend && npm install",
+    "build": "cd frontend && npm run build",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
-    "dev:all": "npm run dev:frontend && npm run dev:backend",    
-  },
-  "dependencies": {
-    "next": "14.0.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "dev:all": "npm run dev:frontend && npm run dev:backend"
   },
   "keywords": [
     "credit-scoring",
@@ -27,7 +23,7 @@
   "author": "AltCred Team",
   "license": "MIT",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
