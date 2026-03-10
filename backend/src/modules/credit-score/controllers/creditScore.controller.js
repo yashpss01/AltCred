@@ -1,24 +1,15 @@
-/**
- * Credit Score Controller
- * Handles HTTP requests for credit score operations
- */
-
 const {
     calculateUserCreditScore,
     getLatestCreditScore,
     getCreditScoreHistory,
 } = require('../services/creditScore.service');
 
-/**
- * Calculate credit score for authenticated user
- * POST /api/v1/credit-score/calculate
- */
 async function calculateScore(req, res, next) {
     try {
-        const userId = req.user.id;
+        const uid = req.user.id;
 
-        // Calculate credit score
-        const scoreResult = await calculateUserCreditScore(userId);
+        
+        const scoreResult = await calculateUserCreditScore(uid);
 
         res.status(200).json({
             success: true,
@@ -77,10 +68,6 @@ async function getScore(req, res, next) {
     }
 }
 
-/**
- * Get credit score history for authenticated user
- * GET /api/v1/credit-score/history
- */
 async function getScoreHistory(req, res, next) {
     try {
         const userId = req.user.id;

@@ -106,3 +106,5 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+ml/models/*.pkl
+data/
