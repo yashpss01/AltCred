@@ -13,6 +13,7 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
  * @returns {Promise<Object>} Prediction result
  */
 async function predictCreditScore(data) {
+    const startTime = Date.now();
     try {
         console.log('Calling ML service at:', `${ML_SERVICE_URL}/predict-credit-score`);
 
@@ -37,18 +38,24 @@ async function predictCreditScore(data) {
             timeout: 5000 // 5 second timeout
         });
 
+        const latency = Date.now() - startTime;
+
         return {
             success: true,
             prediction: response.data.credit_score_category,
             confidence: response.data.confidence,
-            probabilities: response.data.probabilities
+            probabilities: response.data.probabilities,
+            model_version: response.data.model_version,
+            explanation: response.data.explanation,
+            latency_ms: latency
         };
     } catch (error) {
         console.error('ML Service Error:', error.message);
         return {
             success: false,
             error: error.message,
-            fallback: true
+            fallback: true,
+            latency_ms: Date.now() - startTime
         };
     }
 }

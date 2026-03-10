@@ -107,12 +107,15 @@ async function logPrediction(userId, data) {
             ml_confidence: data.mlConfidence,
             final_score: data.finalScore,
             risk_category: data.riskCategory,
+            model_version: data.modelVersion,
+            prediction_latency_ms: data.latencyMs,
+            ml_service_status: data.mlStatus,
+            explanation_json: data.explanation,
             created_at: new Date().toISOString()
         });
 
     if (error) {
         console.error('Failed to log prediction:', error.message);
-        // Don't throw, logging failure shouldn't break the user flow
     }
 }
 
@@ -147,13 +150,17 @@ async function calculateUserCreditScore(userId) {
             const { getScoreCategory } = require('./mlModel.service');
             riskCategory = getScoreCategory(finalScore);
             mlMeta = {
+                status: 'success',
                 prediction: mlResult.prediction,
                 confidence: mlResult.confidence,
-                probabilities: mlResult.probabilities
+                probabilities: mlResult.probabilities,
+                model_version: mlResult.model_version,
+                explanation: mlResult.explanation,
+                latency_ms: mlResult.latency_ms
             };
         } else {
             console.warn('ML Service failed, falling back to rule-based score');
-            mlMeta = { status: 'failed', error: mlResult.error };
+            mlMeta = { status: 'failed', error: mlResult.error, latency_ms: mlResult.latency_ms };
         }
 
         const finalResult = {
@@ -167,16 +174,18 @@ async function calculateUserCreditScore(userId) {
         // 6. Save main score to credit_scores table
         const savedScore = await saveCreditScore(userId, finalResult);
 
-        // 7. Log detailed prediction (if table exists)
-        if (mlResult.success) {
-            await logPrediction(userId, {
-                ruleScore: ruleResult.score,
-                mlPrediction: mlResult.prediction,
-                mlConfidence: mlResult.confidence,
-                finalScore: finalScore,
-                riskCategory: riskCategory
-            });
-        }
+        // 7. Log detailed prediction
+        await logPrediction(userId, {
+            ruleScore: ruleResult.score,
+            mlPrediction: mlResult.prediction || "N/A",
+            mlConfidence: mlResult.confidence || 0,
+            finalScore: finalScore,
+            riskCategory: riskCategory,
+            modelVersion: mlResult.model_version || "fallback",
+            latencyMs: mlResult.latency_ms,
+            mlStatus: mlResult.success ? 'ok' : 'error',
+            explanation: mlResult.explanation || []
+        });
 
         // 8. Return complete result
         return {
