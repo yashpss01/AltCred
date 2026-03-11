@@ -185,19 +185,19 @@ The backend automatically waits for the ML service to be healthy before starting
 curl -X POST http://localhost:8000/predict-credit-score \
   -H "Content-Type: application/json" \
   -d '{
-    "age": 30,
-    "annual_income": 50000,
-    "monthly_inhand_salary": 4000,
-    "num_bank_accounts": 3,
-    "num_credit_card": 2,
-    "interest_rate": 12,
-    "num_of_delayed_payment": 3,
-    "outstanding_debt": 5000,
-    "credit_utilization_ratio": 30,
-    "total_emi_per_month": 500,
-    "monthly_balance": 1500,
-    "occupation": "Engineer",
-    "credit_mix": "Standard",
+    "age": 28,
+    "annual_income": 65000,
+    "monthly_inhand_salary": 5200,
+    "num_bank_accounts": 2,
+    "num_credit_card": 1,
+    "interest_rate": 8.5,
+    "num_of_delayed_payment": 0,
+    "outstanding_debt": 2500,
+    "credit_utilization_ratio": 15.5,
+    "total_emi_per_month": 450,
+    "monthly_balance": 2200,
+    "occupation": "Software Engineer",
+    "credit_mix": "Good",
     "payment_of_min_amount": "Yes",
     "payment_behaviour": "Low_spent_Small_value_payments"
   }'
@@ -293,16 +293,12 @@ AltCred/
 │   └── Dockerfile
 ├── ml/                    # Python ML workspace
 │   ├── inference/         # FastAPI app, Feature Service
-│   ├── training/          # Model training pipeline
-│   ├── preprocessing/     # Data cleaning & feature engineering
 │   ├── registry/          # Model registry (JSON)
 │   ├── models/            # Serialized models & encoders
 │   └── Dockerfile
-├── docs/                  # Architecture & integration docs
 ├── docker-compose.yml     # Orchestration with health checks
 ├── Makefile               # Dev CLI (make run, make stop)
 ├── .env.example           # Environment variable template
-├── CONTRIBUTING.md        # Contributor guidelines
 └── LICENSE                # MIT License
 ```
 
