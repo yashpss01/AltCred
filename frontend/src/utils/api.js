@@ -10,7 +10,7 @@ export const API_ENDPOINTS = {
     },
     // Intake endpoints
     INTAKE: {
-        SAVE_ANSWERS: `${API_BASE_URL}/api/v1/intake/answers`,
+        SAVE_ANSWERS: `${API_BASE_URL}/api/v1/intake/submit`,
     },
     // Credit Score endpoints
     CREDIT_SCORE: {
