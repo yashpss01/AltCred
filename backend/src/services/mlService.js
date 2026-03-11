@@ -15,23 +15,21 @@ const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 async function predictCreditScore(data) {
     const startTime = Date.now();
     try {
-        console.log('Calling ML service at:', `${ML_SERVICE_URL}/predict-credit-score`);
-
         const response = await axios.post(`${ML_SERVICE_URL}/predict-credit-score`, {
-            age: data.age,
-            annual_income: data.monthlyIncome * 12, // Convert monthly to annual for ML model
+            age: data.age || 25,
+            annual_income: data.monthlyIncome * 12,
             monthly_inhand_salary: data.monthlyIncome,
-            num_bank_accounts: data.num_bank_accounts,
-            num_credit_card: data.num_credit_card,
-            interest_rate: data.interest_rate,
-            num_of_delayed_payment: data.num_of_delayed_payment,
-            outstanding_debt: data.outstanding_debt,
-            credit_utilization_ratio: data.credit_utilization_ratio,
-            total_emi_per_month: data.total_emi_per_month,
-            monthly_balance: data.monthly_balance,
-            occupation: data.occupation,
-            type_of_loan: data.loanExperience || "None",
-            credit_mix: data.credit_mix,
+            num_bank_accounts: data.numBankAccounts || 1,
+            num_credit_card: data.numCreditCards || 0,
+            interest_rate: data.interestRate || 0,
+            num_of_delayed_payment: data.num_of_delayed_payment || 0,
+            outstanding_debt: data.outstandingDebt || 0,
+            credit_utilization_ratio: data.credit_utilization_ratio || 30,
+            total_emi_per_month: data.monthlyEmis || 0,
+            monthly_balance: (data.monthlyIncome - (data.monthlyEmis || 0)) || 0,
+            occupation: data.occupation || "Other",
+            type_of_loan: data.pastLoanExperience || "None",
+            credit_mix: data.credit_mix || "Standard",
             payment_of_min_amount: data.payment_of_min_amount || "No",
             payment_behaviour: data.payment_behaviour || "Low_spent_Small_value_payments"
         }, {

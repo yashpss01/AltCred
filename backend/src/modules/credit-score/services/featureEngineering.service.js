@@ -138,8 +138,14 @@ function mapFinancialDiscipline(value) {
  */
 function engineerFeatures(answers) {
     const features = {
+        age: Number(answers.age) || 25,
         employmentStability: mapEmploymentStability(answers.employmentStability),
         monthlyIncome: mapMonthlyIncome(answers.monthlyIncome),
+        numBankAccounts: Number(answers.numBankAccounts) || 1,
+        numCreditCards: Number(answers.numCreditCards) || 0,
+        interestRate: Number(answers.interestRate) || 0,
+        outstandingDebt: Number(answers.outstandingDebt) || 0,
+        monthlyEmis: Number(answers.monthlyEmis) || 0,
         incomeStability: mapIncomeStability(answers.incomeStability),
         savingsBuffer: mapSavingsBuffer(answers.savingsBuffer),
         expenseRatio: mapExpenseRatio(answers.expenseRatio),
