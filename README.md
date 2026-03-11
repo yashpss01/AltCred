@@ -313,11 +313,11 @@ AltCred/
 | Service | Recommended Platform |
 |---|---|
 | Frontend | Vercel |
-| Backend | Railway |
-| ML Service | Railway |
+| Backend | Render (via Blueprint) |
+| ML Service | Render (via Blueprint) |
 | Database | Supabase |
 
-To deploy backend and ML services on Railway, connect your GitHub repository to a new Railway project. Create two services pointing to the same repository but set the **Root Directory** to `/backend` for the Node.js API and `/ml` for the Python service. Ensure all environment variables from `.env.example` are configured in your deployment platform.
+To deploy backend and ML services on Render, simply connect your GitHub repository and Render will automatically detect the `render.yaml` Blueprint file and provision both services. Ensure all environment variables from `.env.example` are configured in your deployment platform.
 
 ---
 
