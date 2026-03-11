@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: altcred-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: altcred-ml-service
+          envVarKey: RENDER_INTERNAL_HOSTNAME
+          
+  - type: web
+    name: altcred-ml-service
+    env: python
+    rootDir: ml
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn inference.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MODEL_REGISTRY_PATH
+        value: ml/registry/model_registry.json

@@ -313,11 +313,11 @@ AltCred/
 | Service | Recommended Platform |
 |---|---|
 | Frontend | Vercel |
-| Backend | Railway / Render |
-| ML Service | Railway / Fly.io |
+| Backend | Render (via Blueprint) |
+| ML Service | Render (via Blueprint) |
 | Database | Supabase |
 
-Ensure all environment variables from `.env.example` are configured in your deployment platform.
+To deploy backend and ML services on Render, simply connect your GitHub repository and Render will automatically detect the `render.yaml` Blueprint file and provision both services. Ensure all environment variables from `.env.example` are configured in your deployment platform.
 
 ---
 
