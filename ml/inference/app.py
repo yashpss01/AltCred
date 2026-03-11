@@ -11,7 +11,7 @@ import time
 
 # Add the project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-from ml.inference.feature_service import feature_service
+from inference.feature_service import feature_service
 
 app = FastAPI(title="AltCred Production ML Service")
 
