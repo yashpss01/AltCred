@@ -10,6 +10,10 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Download the model file during build
+COPY download_models.py .
+RUN python download_models.py
+
 COPY . .
 
 EXPOSE 8000
