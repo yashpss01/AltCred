@@ -41,12 +41,16 @@ def load_active_model():
             
         model_path = os.path.join(MODELS_DIR, active_model_file)
         if os.path.exists(model_path):
-            current_model = joblib.load(model_path)
+            # Use mmap_mode to save memory
+            current_model = joblib.load(model_path, mmap_mode='r')
             current_model_version = active_model_file.split('.')[0]
             
-            # Initialize SHAP Explainer (Optimized for Trees)
-            print(f"Initializing SHAP TreeExplainer for {current_model_version}...")
-            explainer = shap.TreeExplainer(current_model)
+            # Initialize SHAP only if explicitly enabled (saves ~200-300MB RAM)
+            if os.environ.get("ENABLE_SHAP", "false").lower() == "true":
+                print(f"Initializing SHAP TreeExplainer for {current_model_version}...")
+                explainer = shap.TreeExplainer(current_model)
+            else:
+                print("SHAP explainer disabled to save memory (Render Free Tier).")
             
             print(f"Model {current_model_version} loaded successfully from {model_path}")
             return True
