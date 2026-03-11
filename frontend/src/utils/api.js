@@ -1,5 +1,6 @@
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://altcred-backend.onrender.com';
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://altcred-backend.onrender.com';
+const API_BASE_URL = rawBaseUrl.replace(/\/api\/v1\/?$/, '');
 
 export const API_ENDPOINTS = {
     // Auth endpoints

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Navbar from "../components/Navbar.jsx";
 import styles from "../styles/Dashboard.module.css";
 import { API_ENDPOINTS, apiClient } from "../utils/api";
+import { SCORE_THRESHOLDS } from "../utils/constants";
 
 export default function Dashboard() {
     const router = useRouter();
@@ -193,10 +194,10 @@ const backgroundStyle = {
 };
 
 function getScoreCategory(score) {
-    if (score >= 750) return 'Excellent';
-    if (score >= 650) return 'Good';
-    if (score >= 550) return 'Fair';
-    if (score >= 450) return 'Poor';
+    if (score >= SCORE_THRESHOLDS.EXCELLENT) return 'Excellent';
+    if (score >= SCORE_THRESHOLDS.GOOD) return 'Good';
+    if (score >= SCORE_THRESHOLDS.FAIR) return 'Fair';
+    if (score >= SCORE_THRESHOLDS.POOR) return 'Poor';
     return 'Very Poor';
 }
 
