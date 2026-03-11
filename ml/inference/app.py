@@ -16,8 +16,8 @@ from inference.feature_service import feature_service
 app = FastAPI(title="AltCred Production ML Service")
 
 # Registry and Model configuration
-REGISTRY_PATH = 'ml/registry/model_registry.json'
-MODELS_DIR = 'ml/models/'
+REGISTRY_PATH = 'registry/model_registry.json'
+MODELS_DIR = 'models/'
 
 # Global variables for model and explainer
 current_model = None
