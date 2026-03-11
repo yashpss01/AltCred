@@ -1,9 +1,9 @@
 'use client';
 
-import "@/styles/globals.css";
-import DottedBackground from '@/components/DottedBackground';
-import CustomCursor from '@/components/CustomCursor';
-import Footer from '@/components/Footer.jsx';
+import "../styles/globals.css";
+import DottedBackground from '../components/DottedBackground.jsx';
+import CustomCursor from '../components/CustomCursor.jsx';
+import Footer from '../components/Footer.jsx';
 
 export default function App({ Component, pageProps }) {
     return (

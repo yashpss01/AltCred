@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import styles from "@/styles/Dashboard.module.css";
-import { API_ENDPOINTS, apiClient } from "@/utils/api";
+import Navbar from "../components/Navbar.jsx";
+import styles from "../styles/Dashboard.module.css";
+import { API_ENDPOINTS, apiClient } from "../utils/api";
 
 export default function Dashboard() {
     const router = useRouter();

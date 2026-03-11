@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Logo from "./Logo";
-import { getToken, removeToken } from "@/utils/auth";
+import { getToken, removeToken } from "../utils/auth";
 import { Menu, X } from "lucide-react";
 
 const Navbar = () => {

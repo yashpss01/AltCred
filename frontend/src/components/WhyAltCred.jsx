@@ -1,4 +1,4 @@
-import styles from '@/app/page.module.css';
+import styles from '../styles/globals.css';
 
 export default function WhyAltCred() {
   return (

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Award, Activity, UserCheck, Zap, Eye, BarChart3, Shield, Code } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Navbar from '../components/Navbar.jsx';
 
 const Features = () => {
   const features = [

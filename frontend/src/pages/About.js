@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Target, Eye, Lightbulb, TrendingUp, Shield, Users, Zap, Check } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import Navbar from '../components/Navbar.jsx';
 
 const About = () => {
   const traditionalReasons = [

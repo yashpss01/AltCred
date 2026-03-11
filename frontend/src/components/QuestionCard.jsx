@@ -1,5 +1,5 @@
 
-import styles from "@/styles/FinancialAssessment.module.css";
+import styles from "../styles/FinancialAssessment.module.css";
 
 export const QuestionCard = ({ questionData, currentAnswer, onAnswerChange }) => {
   

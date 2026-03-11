@@ -1,10 +1,10 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { CheckCircle, TrendingUp, Users, Shield, Zap, Activity } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import Navbar from '../components/Navbar.jsx';
+import Footer from '../components/Footer.jsx';
 import { useEffect, useState } from 'react';
-import { getToken } from '@/utils/auth';
+import { getToken } from '../utils/auth';
 
 const Home = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

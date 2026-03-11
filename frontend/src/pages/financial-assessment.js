@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/router";
-import styles from "@/styles/FinancialAssessment.module.css";
-import Navbar from "@/components/Navbar";
-import { QUESTIONS } from "@/utils/questions";
-import { QuestionCard } from "@/components/QuestionCard";
-import { API_ENDPOINTS, apiClient } from "@/utils/api";
+import styles from "../styles/FinancialAssessment.module.css";
+import Navbar from "../components/Navbar.jsx";
+import { QUESTIONS } from "../utils/questions";
+import { QuestionCard } from "../components/QuestionCard.jsx";
+import { API_ENDPOINTS, apiClient } from "../utils/api";
 
 export default function FinancialAssessment() {
     const router = useRouter();
